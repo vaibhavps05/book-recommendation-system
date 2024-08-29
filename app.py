@@ -1,37 +1,53 @@
-from flask import Flask, render_template, request
+from flask import Flask,render_template,request
 import pickle
 import numpy as np
 
-model = pickle.load(open('Model.pkl', 'rb'))
-book_names = pickle.load(open('Book_Names.pkl', 'rb'))
-book_pivot = pickle.load(open('Book_Pivot.pkl', 'rb'))
-final_rating = pickle.load(open('Final_Rating.pkl', 'rb'))
+popular_df = pickle.load(open('popular.pkl','rb'))
+pt = pickle.load(open('pt.pkl','rb'))
+books = pickle.load(open('books.pkl','rb'))
+similarity_scores = pickle.load(open('similarity_scores.pkl','rb'))
 
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return render_template('index.html',
+                           book_name = list(popular_df['Book-Title'].values),
+                           author=list(popular_df['Book-Author'].values),
+                           image=list(popular_df['Image-URL-M'].values),
+                           votes=list(popular_df['num_ratings'].values),
+                           rating=list(popular_df['avg_rating'].values)
+                           )
 
 @app.route('/recommend')
 def recommend_ui():
     return render_template('recommend.html')
 
+@app.route('/recommend_books',methods=['post'])
+def recommend():
+    user_input = request.form.get('user_input')
 
-@app.route('/recommend_books', methods=['post'])
-def recommend_book(book_name):
-    book_id = np.where(book_pivot.index == book_name)[0][0]
-    distance, suggestion = model.kneighbors(book_pivot.iloc[book_id,:].values.reshape(1,-1), n_neighbors=6 )
+    # Check if the book exists in the index
+    if user_input not in pt.index:
+        # Return the template with an error message
+        return render_template('recommend.html', error="Book not found. Please try another title.")
 
-    for i in range(len(suggestion)):
-            books = book_pivot.index[suggestion[i]]
-            for j in books:
-                if j == book_name:
-                    print(f"You searched '{book_name}'\n")
-                    print("The suggestion books are: \n")
-                else:
-                    print(j)
+    index = np.where(pt.index == user_input)[0][0]
+    similar_items = sorted(list(enumerate(similarity_scores[index])), key=lambda x: x[1], reverse=True)[1:5]
 
+    data = []
+    for i in similar_items:
+        item = []
+        temp_df = books[books['Book-Title'] == pt.index[i[0]]]
+        item.extend(list(temp_df.drop_duplicates('Book-Title')['Book-Title'].values))
+        item.extend(list(temp_df.drop_duplicates('Book-Title')['Book-Author'].values))
+        item.extend(list(temp_df.drop_duplicates('Book-Title')['Image-URL-M'].values))
 
-book_name = "Harry Potter and the Chamber of Secrets (Book 2)"
-recommend_book(book_name)
+        data.append(item)
+
+    print(data)
+
+    return render_template('recommend.html',data=data)
 
 if __name__ == '__main__':
     app.run(debug=True)

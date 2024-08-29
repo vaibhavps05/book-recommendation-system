@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Book Recommender System</title>
     <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <style>
     .text-white{
@@ -13,43 +13,55 @@
 </style>
 <body style="background-color:black">
 
-    <nav class="navbar" style="background-color:#00a65a">
-        <a class="navbar-brand">My Book recommender</a>
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/recommend">Recommend</a></li>
-            <li><a>Contact</a></li>
-        </ul>
-    </nav>
+    <nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Vaibhav</span>
+        </a>
+        <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
+          <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+            <li>
+              <a href="/" class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Home</a>
+            </li>
+            <li>
+              <a href="/recommend" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Recommend</a>
+            </li>
+            <li>
+              <a href="" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
+            </li>
+          </ul>
+        </div>
+        </div>
+      </nav>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="text-white" style="font-size:50px">Recommend Books</h1>
-                <form action="/recommend_books" method="post">
-                    <input name="user_input" type="text" class="form-control"><br>
-                    <input type="submit" class="btn btn-lg btn-warning">
-                </form>
-            </div>
+      <div class="container mx-auto px-4 py-4">
+        <div class="w-full">
+            <h1 class="text-white text-5xl">Recommend Books</h1>
+            <form action="/recommend_books" method="post" class="mt-4">
+                <input name="user_input" type="text" class="form-input w-full p-2 rounded-lg mb-4" placeholder="Enter book name">
+                <input type="submit" class="bg-yellow-500 text-white text-lg font-semibold py-2 px-4 rounded-lg hover:bg-yellow-600 cursor-pointer">
+            </form>
+        </div>
 
-            {% if data %}
-
-             {% for i in data %}
-                <div class="col-md-3" style="margin-top:50px">
-                    <div class="card">
-                        <div class="card-body">
-                            <img class="card-img-top" src="{{i[2]}}">
-                            <p class="text-white">{{i[0]}}</p>
-                            <h4 class="text-white">{{i[1]}}</h4>
+        {% if error %}
+        <h2 class="text-red-500 text-3xl m-10">{{ error }}</h2>
+    {% else %}
+        <!-- Existing code to display recommended books -->
+        <div class="flex flex-wrap mt-12">
+            {% for item in data %}
+                <div class="w-62 sm:w-32 md:w-32 lg:w-40 m-12">
+                    <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                        <div class="p-4">
+                            <img class="w-full h-auto object-cover" src="{{ item[2] }}" alt="Book Image">
+                            <p class="text-white mt-4">{{ item[0] }}</p>
+                            <h4 class="text-white">{{ item[1] }}</h4>
                         </div>
                     </div>
                 </div>
-             {% endfor %}
-
-            {% endif %}
-
-
-
+            {% endfor %}
+        </div>
+    {% endif %}
+    
 
         </div>
     </div>
